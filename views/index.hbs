@@ -7,16 +7,22 @@
   <div><input type="submit" value="Upload Image"></div>
 </form>
 
-<p id="message">{{message}}</p>
+<p id="message">{{messages}}</p>
 
-<h2>Generated Thumbnails</h2>
-{{#each this.thumbnails}}
-  <img src="https://{{../accountName}}.blob.core.windows.net/{{../containerName}}/{{name}}">
-{{/each}}
+<h2>Image Analytic</h2>
+{{#if blobaddress}}
+  <img id="file-uploaded" src="https://finalsubmissionadg182.blob.core.windows.net/images/{{blobaddress}}">  
+ {{else}}
+    <img id="file-uploaded" src="">  
+ {{/if}}
+  <p id="responseTextArea"></p>
+
 
 <hr>
 <p>This app has no official privacy policy. Your data will be uploaded to a service in order to produce a thumbnail. Your images will be public once you upload them and there is no automated way to remove them.</p>
 
+
+<script src="/assets/jquery-3.4.1.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
 
@@ -35,4 +41,71 @@
     });
 
   });
+
+   function processImage() {
+        // **********************************************
+        // *** Update or verify the following values. ***
+        // **********************************************
+ 
+        // Replace <Subscription Key> with your valid subscription key.
+        var subscriptionKey = "27836eb0bdc64437872c413c6ce07dbd";
+ 
+        // You must use the same Azure region in your REST API method as you used to
+        // get your subscription keys. For example, if you got your subscription keys
+        // from the West US region, replace "westcentralus" in the URL
+        // below with "westus".
+        //
+        // Free trial subscription keys are generated in the "westus" region.
+        // If you use a free trial subscription key, you shouldn't need to change
+        // this region.
+        var uriBase =
+            "https://southeastasia.api.cognitive.microsoft.com/vision/v2.0/analyze";
+ 
+        // Request parameters.
+        var params = {
+            "visualFeatures": "Categories,Description,Color",
+            "details": "",
+            "language": "en",
+        };
+ 
+        // Display the image.
+        var sourceImageUrl = document.getElementById("file-uploaded").src;
+        // document.querySelector("#sourceImage").src = sourceImageUrl;
+ 
+        // Make the REST API call.
+        $.ajax({
+            url: uriBase + "?" + $.param(params),
+ 
+            // Request headers.
+            beforeSend: function(xhrObj){
+                xhrObj.setRequestHeader("Content-Type","application/json");
+                xhrObj.setRequestHeader(
+                    "Ocp-Apim-Subscription-Key", subscriptionKey);
+            },
+ 
+            type: "POST",
+ 
+            // Request body.
+            data: '{"url": ' + '"' + sourceImageUrl + '"}',
+        })
+ 
+        .done(function(data) {
+            // Show formatted JSON on webpage.
+            //console.log(JSON.stringify(data['description']['captions'][0]['text']));
+            $("#responseTextArea").html(JSON.stringify(data['description']['captions'][0]['text'], null, 2));
+        })
+ 
+        .fail(function(jqXHR, textStatus, errorThrown) {
+            // Display error message.
+            var errorString = (errorThrown === "") ? "Error. " :
+                errorThrown + " (" + jqXHR.status + "): ";
+            errorString += (jqXHR.responseText === "") ? "" :
+                jQuery.parseJSON(jqXHR.responseText).message;
+            alert(errorString);
+        });
+    };
+    if( document.getElementById("file-uploaded").src != "https://comvisionbyadg.azurewebsites.net/"){
+       processImage();
+    }
+   
 </script>

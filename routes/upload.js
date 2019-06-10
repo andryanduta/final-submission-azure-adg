@@ -24,13 +24,13 @@ const handleError = (err, res) => {
 
 const getBlobName = originalName => {
     const identifier = Math.random().toString().replace(/0\./, ''); // remove "0." from start of string
-    return `${originalName}-${identifier}`;
+    return `${identifier}-${originalName}`;
 };
 
 router.post('/', uploadStrategy, (req, res) => {
 
     const
-          blobName = getBlobName(req.file.originalname)
+          blobName = getBlobName(req.file.originalname)          
         , stream = getStream(req.file.buffer)
         , streamLength = req.file.buffer.length
     ;
@@ -42,8 +42,9 @@ router.post('/', uploadStrategy, (req, res) => {
             return;
         }
 
-        res.render('success', { 
-            message: 'File uploaded to Azure Blob storage.' 
+        res.render('index', { 
+            message: 'File uploaded to Azure Blob storage.',
+            blobaddress: blobName
         });
     });
 });
