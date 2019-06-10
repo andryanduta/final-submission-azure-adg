@@ -91,7 +91,7 @@
  
         .done(function(data) {
             // Show formatted JSON on webpage.
-            //console.log(JSON.stringify(data['description']['captions'][0]['text']));
+            console.log(JSON.stringify(data));
             $("#responseTextArea").html(JSON.stringify(data['description']['captions'][0]['text'], null, 2));
         })
  
